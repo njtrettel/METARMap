@@ -65,10 +65,11 @@ def getColorForFlightCategory(flightCategory):
         return COLOR_LIFR
     return COLOR_CLEAR
 
-def findForecastForTime(forecastTime, forecasts):
+def findForecastForTime(time, forecasts):
+    forecastTime = time.replace(tzinfo=timezone(TIME_ZONE))
     for forecast in forecasts:
-        start = forecast.get('startTime')
-        end = forecast.get('endTime')
+        start = forecast.get('startTime').replace(tzinfo=timezone('UTC')).astimezone(timezone('UTC'))
+        end = forecast.get('endTime').replace(tzinfo=timezone('UTC')).astimezone(timezone('UTC'))
         if (start < forecastTime and forecastTime < end):
             return forecast
     return { "":"" }
@@ -146,9 +147,7 @@ def changeLightsBasedOnTaf(airports, forecastDict, forecastTime):
     pixels.show()
 
 def changeDisplay(time):
-    time_utc = time.replace(tzinfo=timezone('UTC'))
-    time_in_tz = time_utc.astimezone(timezone(TIME_ZONE))
     clear()
-    draw.text((0, -4), time_in_tz.strftime('%a %H:%M'), font=font, fill=255)
+    draw.text((0, -4), time.strftime('%a %H:%M'), font=font, fill=255)
     disp.image(image.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT))
     disp.show()
