@@ -14,6 +14,7 @@ from logging.handlers import RotatingFileHandler
 
 from lib.forecast import generateForecast
 from lib.display import changeDisplay, changeLightsBasedOnMetar, changeLightsBasedOnTaf
+from lib.common import findMinimumCeiling
 
 logDateFormat = '%m/%d %H:%M:%S'
 logFormatter = logging.Formatter(fmt='%(asctime)s %(message)s', datefmt=logDateFormat)
@@ -44,6 +45,11 @@ FORECAST_URL = "https://www.aviationweather.gov/adds/dataserver_current/httppara
 REFRESH_RATE_FETCH = 300
 REFRESH_RATE_SLIDER = 0.25
 
+VISIBILITY_DEFAULT = 10.0
+CEILING_DEFAULT = 12000
+WIND_SPEED_DEFAULT = 0
+WIND_GUST_DEFAULT = 0
+
 def getViewingTime():
     return min(math.floor(chan.voltage / SLIDER_STEP), 23)
 
@@ -66,18 +72,18 @@ def populateMetars():
         if metar.find('flight_category') is None:
             continue
         flightCategory = metar.find('flight_category').text
-        windSpeed = 0
-        windGust = 0
+        visibility = float(metar.find('visibility_statute_mi').text) if metar.find('visibility_statute_mi') is not None else VISIBILITY_DEFAULT
+        ceiling = findMinimumCeiling(metar) or CEILING_DEFAULT
+        windSpeed = int(metar.find('wind_speed_kt').text) if metar.find('wind_speed_kt') is not None else WIND_SPEED_DEFAULT
+        windGust = int(metar.find('wind_gust_kt').text) if metar.find('wind_gust_kt') is not None else WIND_GUST_DEFAULT
         lightning = False
-        if metar.find('wind_speed_kt') is not None:
-            windSpeed = int(metar.find('wind_speed_kt').text)
-        if metar.find('wind_gust_kt') is not None:
-            windGust = int(metar.find('wind_gust_kt').text)
         if metar.find('raw_text') is not None:
             rawText = metar.find('raw_text').text
             lightning = False if rawText.find('LTG') == -1 else True
         metarDict[stationId] = {
             'flightCategory': flightCategory,
+            'visibility': visibility,
+            'ceiling': ceiling,
             'windSpeed': windSpeed,
             'windGust': windGust,
             'lightning': lightning
