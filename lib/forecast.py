@@ -1,12 +1,10 @@
 import datetime
+from lib.common import findMinimumCeiling
 
 VFR = 'VFR'
 MVFR = 'MVFR'
 IFR = 'IFR'
 LIFR = 'LIFR'
-
-BROKEN = 'BKN'
-OVERCAST = 'OVC'
 
 THRESH_MVFR_CEILING = 3000
 THRESH_IFR_CEILING = 1000
@@ -14,20 +12,6 @@ THRESH_LIFR_CEILING = 500
 THRESH_MVFR_VISIBILITY = 5
 THRESH_IFR_VISIBILITY = 3
 THRESH_LIFR_VISIBILITY = 1
-
-def findMinimumCeiling(forecast):
-    ceiling = None
-    if forecast.iter('sky_condition') is None:
-        return None
-    for skyCondition in forecast.iter('sky_condition'):
-        layer = skyCondition.attrib
-        coverage = layer['sky_cover']
-        if coverage not in [BROKEN, OVERCAST]:
-            continue
-        base = int(layer['cloud_base_ft_agl']) if 'cloud_base_ft_agl' in layer else 0
-        if (ceiling is None) or (base < ceiling):
-            ceiling = base
-    return ceiling
 
 def findIndexForCondition(items, condition):
     for item in items:

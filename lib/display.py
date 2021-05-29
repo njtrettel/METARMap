@@ -74,6 +74,12 @@ def findForecastForTime(time, forecasts):
             return forecast
     return { "":"" }
 
+def changeDisplay(time):
+    clear()
+    draw.text((0, -4), time.strftime('%a %H:%M'), font=font, fill=255)
+    disp.image(image.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT))
+    disp.show()
+
 blinkDict = { '':'' }
 
 def blink(i, originalColor, isOff = None):
@@ -92,9 +98,10 @@ def cancelAllBlinks():
     for i in list(blinkDict.keys()):
         cancelBlink(i)
 
-def changeLightsBasedOnMetar(airports, metarDict):
+def changeLightsBasedOnMetar(airports, metarDict, forecastDict, time):
     # TODO: IMPLEMENT AND TEST BLINKING FOR LIGHTNING (can't find a TAF with lightning yet)
     cancelAllBlinks()
+    changeDisplay(time)
     i = 0
     for airportcode in airports:
         if airportcode == "NULL":
@@ -121,6 +128,7 @@ def changeLightsBasedOnMetar(airports, metarDict):
 def changeLightsBasedOnTaf(airports, forecastDict, forecastTime):
     # TODO: IMPLEMENT AND TEST BLINKING FOR LIGHTNING (can't find a TAF with lightning yet)
     cancelAllBlinks()
+    changeDisplay(forecastTime)
     i = 0
     for airportcode in airports:
         if airportcode == "NULL":
@@ -145,9 +153,3 @@ def changeLightsBasedOnTaf(airports, forecastDict, forecastTime):
             blink(i, color)
         i += 1
     pixels.show()
-
-def changeDisplay(time):
-    clear()
-    draw.text((0, -4), time.strftime('%a %H:%M'), font=font, fill=255)
-    disp.image(image.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT))
-    disp.show()
