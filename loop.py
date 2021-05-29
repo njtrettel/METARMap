@@ -13,7 +13,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 from logging.handlers import RotatingFileHandler
 
 from lib.forecast import generateForecast
-from lib.display import changeDisplay, changeLightsBasedOnMetar, changeLightsBasedOnTaf
+from lib.display import changeLightsBasedOnMetar, changeLightsBasedOnTaf
 from lib.common import findMinimumCeiling
 
 logDateFormat = '%m/%d %H:%M:%S'
@@ -105,10 +105,9 @@ def populateForecasts():
 def changeLights():
     global currentViewingTimeDelta
     forecastTime = datetime.datetime.now() + datetime.timedelta(hours=currentViewingTimeDelta)
-    changeDisplay(forecastTime)
     if (currentViewingTimeDelta == 0):
         logger.info('Setting lights for observation: %s', forecastTime.strftime(logDateFormat))
-        changeLightsBasedOnMetar(airports, metarDict)
+        changeLightsBasedOnMetar(airports, metarDict, forecastDict, forecastTime)
     else:
         logger.info('Setting lights for forecast: %s', forecastTime.strftime(logDateFormat))
         changeLightsBasedOnTaf(airports, forecastDict, forecastTime)
