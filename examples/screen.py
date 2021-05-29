@@ -30,6 +30,7 @@ font = ImageFont.truetype('font.tff', 16)
 while True:
     clear()
     draw.text((0, 4), datetime.datetime.now().strftime('%a %H:%M:%S'), font=font, fill=255)
+    draw.text((120, 4), '+-+', font=font, fill=255)
     disp.image(image)
     disp.show()
     time.sleep(0.5)
