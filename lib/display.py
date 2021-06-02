@@ -45,7 +45,7 @@ image = Image.new('1', (width, height))
 draw = ImageDraw.Draw(image)
 
 # Load font
-font = ImageFont.truetype('font.tff', 24)
+font = ImageFont.truetype('font.ttf', 24)
 
 # Black box to clear OLED
 def clear():
