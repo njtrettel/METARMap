@@ -27,11 +27,16 @@ def clear():
 # Load font
 font = ImageFont.truetype('font.ttf', 24)
 font_emoji = ImageFont.truetype('emoji.ttf', 16)
+font_emoji_large = ImageFont.truetype('emoji.ttf', 24)
 
 # while True:
 clear()
 draw.text((0, -4), datetime.datetime.now().strftime('%a %H:%M'), font=font, fill=255)
-draw.text((0, 12), '\U0001F4A8 \U0001F440 \u26C5', font=font_emoji, fill='#ff0000')
+draw.text((0, 12), '\U0001F4A8', font=font_emoji, fill=255)
+draw.text((24, 12), '\U0001F44D', font=font_emoji, fill=255)
+#draw.text((48, 12), '\U0001F440', font=font_emoji_large, fill=255)
+draw.text((48, 12), '\u26C5', font=font_emoji, fill=255)
+draw.text((72, 12), '\U0001F44E', font=font_emoji, fill=255)
 disp.image(image.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT))
 disp.show()
 # time.sleep(0.5)
