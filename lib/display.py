@@ -7,6 +7,7 @@ import adafruit_ssd1306
 from PIL import Image, ImageDraw, ImageFont
 
 TIME_ZONE = 'US/Eastern'
+HOME_AIRPORT = 'KBCB'
 
 LED_PIN         = board.D18             # GPIO pin connected to the pixels (18 is PCM).
 LED_COUNT       = 50                    # Number of LED pixels.
@@ -46,6 +47,7 @@ draw = ImageDraw.Draw(image)
 
 # Load font
 font = ImageFont.truetype('font.ttf', 24)
+font_emoji = ImageFont.truetype('emoji.ttf', 14)
 
 # Black box to clear OLED
 def clear():
@@ -74,9 +76,14 @@ def findForecastForTime(time, forecasts):
             return forecast
     return { "":"" }
 
-def changeDisplay(time):
+def changeDisplayTime(time):
     clear()
     draw.text((0, -4), time.strftime('%a %H:%M'), font=font, fill=255)
+    disp.image(image.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT))
+    disp.show()
+
+def changeDisplayBetterOrWorse(isBetter):
+    draw.text((104, 16), '\U0001F44D', font=font_emoji, fill=255)
     disp.image(image.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT))
     disp.show()
 
@@ -101,7 +108,7 @@ def cancelAllBlinks():
 def changeLightsBasedOnMetar(airports, metarDict, forecastDict, time):
     # TODO: IMPLEMENT AND TEST BLINKING FOR LIGHTNING (can't find a TAF with lightning yet)
     cancelAllBlinks()
-    changeDisplay(time)
+    changeDisplayTime(time)
     i = 0
     for airportcode in airports:
         if airportcode == "NULL":
@@ -116,6 +123,15 @@ def changeLightsBasedOnMetar(airports, metarDict, forecastDict, time):
         windSpeed = metar.get('windSpeed', 0)
         windGust = metar.get('windGust', 0)
         lightning = metar.get('lightning', False)
+        if (airportcode == HOME_AIRPORT):
+            forecast = forecastDict.get(airportcode,"No")
+            if (forecast != "No"):
+                categoryPriority = [LIFR, IFR, MVFR, VFR]
+                forecastPeriod = findForecastForTime(time, forecast)
+                forecastFlightCategory = forecastPeriod.get('flightCategory')
+                isBetter = categoryPriority.index(flightCategory) >= categoryPriority.index(forecastFlightCategory)
+                changeDisplayBetterOrWorse(isBetter)
+
         color = getColorForFlightCategory(flightCategory)
         pixels[i] = color
         shouldBlink = ((windSpeed > BLINK_WIND_THRESHOLD and ANIMATE_BLINK_FOR_WIND)
@@ -128,7 +144,7 @@ def changeLightsBasedOnMetar(airports, metarDict, forecastDict, time):
 def changeLightsBasedOnTaf(airports, forecastDict, forecastTime):
     # TODO: IMPLEMENT AND TEST BLINKING FOR LIGHTNING (can't find a TAF with lightning yet)
     cancelAllBlinks()
-    changeDisplay(forecastTime)
+    changeDisplayTime(forecastTime)
     i = 0
     for airportcode in airports:
         if airportcode == "NULL":
